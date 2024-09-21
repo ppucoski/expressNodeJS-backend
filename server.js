@@ -8,21 +8,22 @@ const FRONTEND= process.env.FRONTEND
 //middleware
 const product_route = require('./routes/productRoute');
 const errorMiddleware = require('./middleware/errorMiddleware');
-app.use('/api/products', product_route); 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
-app.use(cors());
+
+console.log('FRONTEND:',FRONTEND)
 
 
-// TODO: l8er
-// vo .env FRONTEND= http://example.com 
- //var corsOptions = {
-   // origin: FRONTEND,
-    //optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  //}
+const corsOptions = {
+    origin: FRONTEND,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions));
 
 // database connection
 const mongoose = require('mongoose')
+
+app.use('/api/products', product_route); 
 
 app.get('/', (req, res) => {
    
@@ -33,13 +34,16 @@ app.use(errorMiddleware);
 
 
 mongoose.set("strictQuery", false)
-mongoose.
-connect(MONGO_URL)
+mongoose.connect(MONGO_URL, {
+    dbName: process.env.MONGO_DB_NAME
+})
 .then(() => {
-    app.listen(PORT, () => {
-        console.log(`NodeApi app is running on port ${PORT}`)
-    })
     console.log('Successfully connected to MongoDB')
 }).catch((error) => {
     console.log(error)
+})
+
+
+app.listen(PORT, () => {
+    console.log(`NodeApi app is running on port ${PORT}`)
 })
